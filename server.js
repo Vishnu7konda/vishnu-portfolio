@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // ─── Data Store ─────────────────────────────────────────────────────────────
-const DATA_FILE = path.join(__dirname, 'data.json');
+const DATA_FILE = path.join(process.cwd(), 'data.json');
 
 function readData() {
   try {
@@ -188,8 +188,11 @@ app.get('/admin', (req, res) => {
 });
 
 // ─── Start Server ────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running: http://localhost:${PORT}`));
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  server.listen(PORT, () => console.log(`Server running: http://localhost:${PORT}`));
+}
+module.exports = app;
 
 function escapeHtml(s = '') {
   return String(s)
