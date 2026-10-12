@@ -73,7 +73,7 @@ export default function Hero() {
             transition={{ duration: 1.3, ease: EASE, delay: 0.25 }}
           >
             <motion.img
-              src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg"
+              src="/vishnu-konda.webp"
               alt="Portrait of Vishnu Konda"
               style={{ y: photoY }}
               initial={{ scale: 1.25 }}

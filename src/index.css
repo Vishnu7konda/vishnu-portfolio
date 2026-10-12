@@ -462,7 +462,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     height: calc(100% + 60px);
     margin-top: -60px;
     object-fit: cover;
-    object-position: 50% 30%;
+    object-position: 50% 20%;
 }
 
 /* ── Sections ───────────────────────────────────────────────────── */

@@ -75,7 +75,7 @@ function SkillForm({ initial, onSave, onCancel }) {
     <div className="ad-form">
       <div className="ad-form-header">
         <h2><i className="fas fa-code"></i> {initial ? 'Edit Skill' : 'Add New Skill'}</h2>
-        <button className="ad-close" onClick={onCancel}><i className="fas fa-times"></i></button>
+        <button className="ad-close" onClick={onCancel} aria-label="Close"><i className="fas fa-times"></i></button>
       </div>
 
       {/* Icon picker */}
@@ -181,7 +181,7 @@ function ProjectForm({ initial, onSave, onCancel }) {
     <div className="ad-form">
       <div className="ad-form-header">
         <h2><i className="fas fa-briefcase"></i> {initial ? 'Edit Project' : 'Add New Project'}</h2>
-        <button className="ad-close" onClick={onCancel}><i className="fas fa-times"></i></button>
+        <button className="ad-close" onClick={onCancel} aria-label="Close"><i className="fas fa-times"></i></button>
       </div>
 
       <div className="ad-form-grid">
@@ -192,11 +192,11 @@ function ProjectForm({ initial, onSave, onCancel }) {
 
         <div className="ad-field">
           <label>Image URL / Path <span className="ad-hint">— or upload from device</span></label>
-          <div style={{display: 'flex', gap: '8px'}}>
-            <input type="text" placeholder="/image.png or https://example.com/img.png" value={form.image} onChange={(e) => set('image', e.target.value)} className="ad-input" style={{flex: 1}} />
-            <label className="ad-btn ad-btn-ghost" style={{padding: '0 16px', margin: 0, cursor: 'pointer', whiteSpace: 'nowrap'}}>
+          <div className="ad-upload-row">
+            <input type="text" placeholder="/image.png or https://example.com/img.png" value={form.image} onChange={(e) => set('image', e.target.value)} className="ad-input" />
+            <label className="ad-btn ad-btn-ghost ad-upload-btn">
               <i className="fas fa-upload"></i> Upload
-              <input type="file" accept="image/*" onChange={handleImageUpload} style={{display: 'none'}} />
+              <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
             </label>
           </div>
           {form.image && form.image !== 'Uploading...' && (
@@ -207,7 +207,7 @@ function ProjectForm({ initial, onSave, onCancel }) {
             />
           )}
           {form.image === 'Uploading...' && (
-            <div style={{marginTop: '8px', color: '#6366f1', fontSize: '0.85rem', fontWeight: 500}}>
+            <div className="ad-uploading">
               <i className="fas fa-spinner fa-spin"></i> Uploading image...
             </div>
           )}
@@ -439,10 +439,10 @@ export default function AdminDashboard({ token, onLogout }) {
       {/* ── Header ── */}
       <header className="ad-header">
         <div className="ad-header-brand">
-          <div className="ad-brand-icon"><i className="fas fa-bolt"></i></div>
+          <span className="ad-brand-icon">VK</span>
           <div>
             <span className="ad-brand-title">Portfolio Admin</span>
-            <span className="ad-brand-sub">Content Management</span>
+            <span className="ad-brand-sub">Manage skills &amp; projects</span>
           </div>
         </div>
         <div className="ad-header-actions">

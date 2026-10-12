@@ -29,20 +29,21 @@ export default function AdminLogin({ onLogin }) {
   return (
     <div className="al-page">
       <div className="al-card">
-        <div className="al-logo">
-          <i className="fas fa-shield-halved"></i>
-        </div>
-        <h1 className="al-title">Admin Panel</h1>
-        <p className="al-sub">Vishnu Konda · Portfolio CMS</p>
+        <span className="al-logo">VK</span>
+        <h1 className="al-title">Welcome back</h1>
+        <p className="al-sub">Sign in to manage your portfolio content.</p>
 
         <form className="al-form" onSubmit={handleSubmit}>
+          <label htmlFor="admin-password" className="al-label">Password</label>
           <div className="al-input-wrap">
-            <i className="fas fa-lock al-input-icon"></i>
+            <i className="fas fa-lock al-input-icon" aria-hidden="true"></i>
             <input
+              id="admin-password"
               type={showPw ? 'text' : 'password'}
-              placeholder="Enter password"
+              placeholder="Enter admin password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               required
               autoFocus
               className="al-input"
@@ -51,29 +52,25 @@ export default function AdminLogin({ onLogin }) {
               type="button"
               className="al-eye-btn"
               onClick={() => setShowPw((v) => !v)}
-              tabIndex={-1}
+              aria-label={showPw ? 'Hide password' : 'Show password'}
             >
-              <i className={`fas fa-eye${showPw ? '-slash' : ''}`}></i>
+              <i className={`fas fa-eye${showPw ? '-slash' : ''}`} aria-hidden="true"></i>
             </button>
           </div>
 
           {error && (
-            <p className="al-error">
-              <i className="fas fa-exclamation-circle"></i> {error}
+            <p className="al-error" role="alert">
+              <i className="fas fa-circle-exclamation" aria-hidden="true"></i> {error}
             </p>
           )}
 
-          <button type="submit" className="al-submit" disabled={loading}>
-            {loading ? (
-              <><i className="fas fa-spinner fa-spin"></i> Logging in…</>
-            ) : (
-              <><i className="fas fa-arrow-right-to-bracket"></i> Login</>
-            )}
+          <button type="submit" className="al-submit" disabled={loading || !password}>
+            {loading ? <><i className="fas fa-spinner fa-spin" aria-hidden="true"></i> Signing in…</> : 'Sign in'}
           </button>
         </form>
 
         <a href="/" className="al-back">
-          <i className="fas fa-arrow-left"></i> Back to Portfolio
+          <i className="fas fa-arrow-left" aria-hidden="true"></i> Back to portfolio
         </a>
       </div>
     </div>

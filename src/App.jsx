@@ -49,10 +49,5 @@ function Portfolio() {
 
 export default function App() {
   const isAdmin = window.location.pathname.startsWith('/admin');
-
-  useEffect(() => {
-    if (isAdmin) document.body.classList.add('admin-mode');
-  }, [isAdmin]);
-
   return isAdmin ? <AdminApp /> : <Portfolio />;
 }
