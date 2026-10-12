@@ -1,10 +1,22 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
+import SocialLinks from '../components/SocialLinks';
+import { useReveal, trackSpotlight, stagger } from '../lib/motion';
+
+const EMPTY = { name: '', email: '', subject: '', message: '' };
+
+const CONTACTS = [
+  { icon: 'fas fa-envelope',     label: 'Email',    value: 'vishnu.konda40@gmail.com', href: 'mailto:vishnu.konda40@gmail.com' },
+  { icon: 'fas fa-phone',        label: 'Phone',    value: '+91 8977570809',           href: 'tel:+918977570809' },
+  { icon: 'fas fa-location-dot', label: 'Location', value: 'Hyderabad, Telangana' },
+];
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | sending | success | error
+  const sectionRef = useRef(null);
+  const [form, setForm] = useState(EMPTY);
+  const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const btnRef = useRef(null);
+
+  useReveal(sectionRef);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -41,7 +53,7 @@ export default function Contact() {
       setStatus('success');
       setTimeout(() => {
         setStatus('idle');
-        setForm({ name: '', email: '', subject: '', message: '' });
+        setForm(EMPTY);
       }, 2000);
     } catch (err) {
       setStatus('error');
@@ -50,127 +62,89 @@ export default function Contact() {
     }
   };
 
-  const getBtnLabel = () => {
-    if (status === 'sending') return <><i className="fas fa-spinner fa-spin"></i> Sending...</>;
-    if (status === 'success') return <><i className="fas fa-check"></i> Message Sent!</>;
-    if (status === 'error')   return <><i className="fas fa-times"></i> Try Again</>;
-    return <><i className="fas fa-paper-plane"></i> Send Message</>;
+  const btnLabel = {
+    sending: <><i className="fas fa-spinner fa-spin"></i> Sending...</>,
+    success: <><i className="fas fa-check"></i> Message Sent!</>,
+    error:   <><i className="fas fa-xmark"></i> Try Again</>,
+    idle:    <>Send Message <i className="fas fa-paper-plane"></i></>,
+  }[status];
+
+  const field = (name, label, props = {}) => {
+    const Tag = props.rows ? 'textarea' : 'input';
+    return (
+      <div className="form-group">
+        <Tag
+          id={name}
+          name={name}
+          value={form[name]}
+          onChange={handleChange}
+          placeholder=" "
+          {...props}
+        />
+        <label htmlFor={name}>{label}</label>
+      </div>
+    );
   };
 
   return (
-    <section id="contact" className="contact-section">
+    <section id="contact" className="contact-section" ref={sectionRef}>
       <div className="container">
-        <div className="section-header">
-          <h2 className="section-title">Let's Work Together</h2>
-          <p className="section-subtitle">Ready to bring your ideas to life? Let's discuss your next project</p>
+        <div className="section-header center reveal">
+          <span className="eyebrow">Contact</span>
+          <h2 className="section-title">
+            Let's <span className="gradient-text">work together</span>
+          </h2>
+          <p className="section-subtitle">Ready to bring your ideas to life? Let's discuss your next project.</p>
         </div>
+
         <div className="contact-content">
-          {/* Contact Info */}
           <div className="contact-info">
-            <div className="contact-item fade-in">
-              <div className="contact-icon"><i className="fas fa-envelope"></i></div>
-              <div className="contact-details">
-                <h4>Email</h4>
-                <p>vishnu.konda40@gmail.com</p>
-              </div>
-            </div>
-            <div className="contact-item fade-in">
-              <div className="contact-icon"><i className="fas fa-phone"></i></div>
-              <div className="contact-details">
-                <h4>Phone</h4>
-                <p>+91 8977570809</p>
-              </div>
-            </div>
-            <div className="contact-item fade-in">
-              <div className="contact-icon"><i className="fas fa-map-marker-alt"></i></div>
-              <div className="contact-details">
-                <h4>Location</h4>
-                <p>Hyderabad, Telangana</p>
-              </div>
-            </div>
-            <div style={{ marginTop: '-125px' }}>
-              <h2 className="section-title" style={{ marginBottom: '25px', fontSize: 'clamp(1.5rem, 2.5vw, 4rem)', display: 'inline-block' }}>Connect with me through</h2>
-              <div className="social-links" style={{ marginTop: 0 }}>
-                <a href="https://www.linkedin.com/in/vishnu-konda" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
-                  <i className="fab fa-linkedin"></i>
-                </a>
-                <a href="https://github.com/Vishnu7konda" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="GitHub">
-                  <i className="fab fa-github"></i>
-                </a>
-                <a href="https://www.instagram.com/vishnu_konda7" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Instagram">
-                  <i className="fab fa-instagram"></i>
-                </a>
-              </div>
+            {CONTACTS.map((c, i) => {
+              const Tag = c.href ? 'a' : 'div';
+              return (
+                <Tag
+                  key={c.label}
+                  href={c.href}
+                  className={`card spotlight contact-item reveal${c.href ? '' : ' is-static'}`}
+                  style={stagger(i)}
+                  onMouseMove={trackSpotlight}
+                >
+                  <div className="contact-icon"><i className={c.icon}></i></div>
+                  <div className="contact-details">
+                    <h4>{c.label}</h4>
+                    <p>{c.value}</p>
+                  </div>
+                  {c.href && <i className="fas fa-arrow-right contact-arrow"></i>}
+                </Tag>
+              );
+            })}
+
+            <div className="connect-block reveal" style={stagger(3)}>
+              <h3>Connect with me</h3>
+              <SocialLinks />
             </div>
           </div>
 
-          {/* Contact Form */}
-          <form className="contact-form" onSubmit={handleSubmit} noValidate>
-            <div className="form-group">
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
-              <label htmlFor="name">Your Name</label>
+          <form className="card contact-form reveal" style={stagger(1)} onSubmit={handleSubmit} noValidate>
+            <div className="form-row">
+              {field('name', 'Your Name', { type: 'text', autoComplete: 'name', required: true })}
+              {field('email', 'Your Email', { type: 'email', autoComplete: 'email', required: true })}
             </div>
-            <div className="form-group">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-              <label htmlFor="email">Your Email</label>
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                value={form.subject}
-                onChange={handleChange}
-                required
-              />
-              <label htmlFor="subject">Subject</label>
-            </div>
-            <div className="form-group">
-              <textarea
-                id="message"
-                name="message"
-                rows="5"
-                value={form.message}
-                onChange={handleChange}
-                required
-              ></textarea>
-              <label htmlFor="message">Your Message</label>
-            </div>
+            {field('subject', 'Subject', { type: 'text' })}
+            {field('message', 'Your Message', { rows: 5, required: true })}
+
             {errorMsg && (
-              <p style={{ color: '#f87171', marginBottom: '16px', fontSize: '0.9rem' }}>
-                {errorMsg}
+              <p className="form-error" role="alert">
+                <i className="fas fa-circle-exclamation"></i> {errorMsg}
               </p>
             )}
+
             <button
-              ref={btnRef}
               type="submit"
-              className="btn btn-primary"
+              className={`btn btn-primary btn-block${status === 'success' ? ' is-success' : ''}${status === 'error' ? ' is-error' : ''}`}
               disabled={status === 'sending'}
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-                background: status === 'success'
-                  ? 'linear-gradient(135deg, #10b981, #059669)'
-                  : status === 'error'
-                  ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                  : undefined,
-              }}
             >
-              {getBtnLabel()}
+              {btnLabel}
             </button>
           </form>
         </div>

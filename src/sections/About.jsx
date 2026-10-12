@@ -1,46 +1,40 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import { useReveal, stagger } from '../lib/motion';
+
+const STATS = [
+  { value: '3',  label: 'Projects' },
+  { value: '1+', label: 'Year Exp' },
+];
 
 export default function About() {
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
-
-    const els = sectionRef.current?.querySelectorAll('.fade-in') || [];
-    els.forEach((el, i) => {
-      el.style.transitionDelay = `${i * 0.1}s`;
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useReveal(sectionRef);
 
   return (
     <section id="about" className="about-section" ref={sectionRef}>
       <div className="container">
-        <div className="section-header">
-          <h2 className="section-title">About Me</h2>
-          <p className="section-subtitle">
-            Driven to build digital products that solve real problems and create real impact
-          </p>
+        <div className="section-header reveal">
+          <span className="eyebrow">About me</span>
+          <h2 className="section-title">
+            Building products that <span className="gradient-text">solve real problems</span>
+          </h2>
         </div>
+
         <div className="about-content">
-          <div className="about-image fade-in">
+          <div className="about-image reveal">
             <div className="image-frame">
-              <img src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg" alt="Vishnu Konda" />
-              <div className="image-overlay"></div>
+              <img src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg" alt="Vishnu Konda" loading="lazy" />
+              <div className="image-badge">
+                <i className="fas fa-location-dot"></i>
+                <span>
+                  <small>Based in</small>
+                  Hyderabad, India
+                </span>
+              </div>
             </div>
           </div>
-          <div className="about-text fade-in">
+
+          <div className="about-text reveal" style={stagger(1)}>
             <h3>Creative Developer &amp; Startup Builder</h3>
             <p>
               With 1+ year of experience in web development and product design, I specialize
@@ -55,14 +49,12 @@ export default function About() {
               in the tech world.
             </p>
             <div className="stats">
-              <div className="stat-item fade-in">
-                <span className="stat-number">3</span>
-                <span className="stat-label">Projects</span>
-              </div>
-              <div className="stat-item fade-in">
-                <span className="stat-number">1</span>
-                <span className="stat-label">Year Exp</span>
-              </div>
+              {STATS.map((s, i) => (
+                <div className="stat-item reveal" style={stagger(i + 2)} key={s.label}>
+                  <span className="stat-number gradient-text">{s.value}</span>
+                  <span className="stat-label">{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+const LINK_DIST = 130;
+
 export default function ParticlesCanvas() {
   const canvasRef = useRef(null);
 
@@ -7,88 +9,89 @@ export default function ParticlesCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w = 0;
+    let h = 0;
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
 
-    class Particle {
-      constructor() { this.reset(); }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.opacity = Math.random() * 0.3 + 0.1;
-        this.pulse = Math.random() * 0.02 + 0.01;
-        this.pulseDirection = 1;
-      }
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.opacity += this.pulse * this.pulseDirection;
-        if (this.opacity >= 0.4 || this.opacity <= 0.1) this.pulseDirection *= -1;
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-      }
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(99, 102, 241, ${this.opacity})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `rgba(99, 102, 241, ${this.opacity * 0.5})`;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-    }
+    const count = w < 640 ? 28 : 55;
+    const particles = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      size: Math.random() * 1.4 + 0.4,
+      alpha: Math.random() * 0.35 + 0.1,
+    }));
 
-    const particles = Array.from({ length: 60 }, () => new Particle());
     let animId;
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p) => { p.update(); p.draw(); });
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
 
-      // Draw connecting lines
       for (let i = 0; i < particles.length; i++) {
+        const a = particles[i];
         for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            const alpha = 0.15 * (1 - dist / 120);
-            const grad = ctx.createLinearGradient(
-              particles[i].x, particles[i].y,
-              particles[j].x, particles[j].y
-            );
-            grad.addColorStop(0, `rgba(99,102,241,${alpha})`);
-            grad.addColorStop(1, `rgba(139,92,246,${alpha})`);
+          const b = particles[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < LINK_DIST) {
+            ctx.strokeStyle = `rgba(129, 140, 248, ${0.12 * (1 - dist / LINK_DIST)})`;
+            ctx.lineWidth = 0.6;
             ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = grad;
-            ctx.lineWidth = 0.5;
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
             ctx.stroke();
           }
         }
       }
-      animId = requestAnimationFrame(animate);
+
+      for (const p of particles) {
+        ctx.fillStyle = `rgba(165, 180, 252, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     };
 
-    animate();
-    window.addEventListener('resize', resize);
+    const step = () => {
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+      }
+      draw();
+      animId = requestAnimationFrame(step);
+    };
+
+    if (reduceMotion) draw();
+    else step();
+
+    const onResize = () => {
+      resize();
+      if (reduceMotion) draw();
+    };
+    window.addEventListener('resize', onResize);
 
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', onResize);
     };
   }, []);
 
   return (
-    <div className="particles-container">
+    <div className="particles-container" aria-hidden="true">
       <canvas ref={canvasRef} id="particles-canvas"></canvas>
     </div>
   );

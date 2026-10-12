@@ -1,76 +1,79 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import SocialLinks from '../components/SocialLinks';
+import { scrollToId } from '../lib/motion';
 
-const scrollTo = (id) => {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-};
+const ROLES = ['Creative Developer', 'Full-Stack Developer', 'Startup Builder'];
+
+function useTypedRoles(words) {
+  const [text, setText] = useState('');
+  const [index, setIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setText(words[0]);
+      return;
+    }
+    const word = words[index % words.length];
+    let delay = deleting ? 45 : 90;
+    if (!deleting && text === word) delay = 1800;
+    if (deleting && text === '') delay = 350;
+
+    const t = setTimeout(() => {
+      if (!deleting && text === word) setDeleting(true);
+      else if (deleting && text === '') {
+        setDeleting(false);
+        setIndex((i) => i + 1);
+      } else {
+        setText(word.slice(0, text.length + (deleting ? -1 : 1)));
+      }
+    }, delay);
+    return () => clearTimeout(t);
+  }, [text, deleting, index, words]);
+
+  return text;
+}
 
 export default function Hero() {
-  const heroContentRef = useRef(null);
-
-  // Entrance animation
-  useEffect(() => {
-    const el = heroContentRef.current;
-    if (!el) return;
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    const t = setTimeout(() => {
-      el.style.transition = 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-    }, 200);
-    return () => clearTimeout(t);
-  }, []);
-
-  // Parallax shapes on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.pageYOffset;
-      document.querySelectorAll('.floating-shape').forEach((shape, index) => {
-        const speed = 0.3 + index * 0.1;
-        const rotation = scrolled * 0.05;
-        shape.style.transform = `translateY(${scrolled * speed}px) rotate(${rotation}deg)`;
-      });
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const role = useTypedRoles(ROLES);
 
   return (
     <section id="home" className="hero-section">
-      <div className="hero-content" ref={heroContentRef}>
-        <div className="floating-elements">
-          <div className="floating-shape shape-1"></div>
-          <div className="floating-shape shape-2"></div>
-          <div className="floating-shape shape-3"></div>
+      <div className="hero-content hero-reveal">
+        <div>
+          <span className="hero-badge">
+            <span className="pulse-dot"></span>
+            Open to new opportunities
+          </span>
         </div>
+        <p className="hero-greeting">Hello, I'm</p>
         <h1 className="hero-title">
-          <span className="text-line">Hello, I'm</span>
-          <span className="text-line main-name">Vishnu Konda</span>
-          <span className="text-line">Creative Developer</span>
+          Vishnu <span className="gradient-text">Konda</span>
         </h1>
+        <p className="hero-role" aria-label={ROLES.join(', ')}>
+          <span aria-hidden="true">
+            <span className="typed">{role}</span>
+            <span className="caret"></span>
+          </span>
+        </p>
         <p className="hero-subtitle">
-          Crafting exceptional digital experiences through innovative design and cutting-edge technology
+          Crafting exceptional digital experiences through innovative design and cutting-edge technology.
         </p>
         <div className="hero-buttons">
-          <button
-            className="btn btn-primary"
-            onClick={() => scrollTo('projects')}
-          >
-            <i className="fas fa-rocket"></i>
-            View My Work
+          <button className="btn btn-primary" onClick={() => scrollToId('projects')}>
+            View My Work <i className="fas fa-arrow-right"></i>
           </button>
-          <button
-            className="btn btn-secondary"
-            onClick={() => scrollTo('contact')}
-          >
-            <i className="fas fa-paper-plane"></i>
-            Get In Touch
+          <button className="btn btn-ghost" onClick={() => scrollToId('contact')}>
+            <i className="fas fa-paper-plane"></i> Get In Touch
           </button>
         </div>
+        <SocialLinks className="social-links hero-socials" />
       </div>
-      <div className="scroll-indicator">
-        <div className="scroll-arrow"></div>
-      </div>
+
+      <button className="scroll-indicator" onClick={() => scrollToId('about')} aria-label="Scroll to About">
+        <span className="mouse"></span>
+        Scroll
+      </button>
     </section>
   );
 }

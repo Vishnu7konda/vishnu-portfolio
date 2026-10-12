@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Cursor from './components/Cursor';
-import FloatingNav from './components/FloatingNav';
+import Navbar from './components/Navbar';
 import ParticlesCanvas from './components/ParticlesCanvas';
 import Hero from './sections/Hero';
 import About from './sections/About';
@@ -42,8 +42,13 @@ export default function App() {
   return (
     <>
       <Cursor />
-      <FloatingNav />
+      <div className="bg-ambient" aria-hidden="true">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+      </div>
       <ParticlesCanvas />
+      <Navbar />
       <main>
         <Hero />
         <About />
