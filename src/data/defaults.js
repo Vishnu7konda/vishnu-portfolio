@@ -1,0 +1,17 @@
+export const DEFAULT_SKILLS = [
+  { id: 'skill-1', icon: 'fab fa-html5', title: 'Frontend Development', desc: 'Modern HTML5, CSS3, and JavaScript with frameworks like React, Vue.js, and Angular' },
+  { id: 'skill-2', icon: 'fas fa-server', title: 'Backend Development', desc: 'Node.js, Python, and database management with MongoDB, PostgreSQL' },
+  { id: 'skill-3', icon: 'fas fa-mobile-alt', title: 'Mobile Development', desc: 'React Native and Flutter for cross-platform mobile applications' },
+  { id: 'skill-4', icon: 'fas fa-palette', title: 'UI/UX Design', desc: 'User-centered design principles with Figma, Adobe Creative Suite, and prototyping' },
+];
+
+export const DEFAULT_PROJECTS = [
+  { id: 'proj-1', image: '/DALL·E-2024-05-10-18.27.35-A-photograph-of-a-healthcare-setting-a-doctor-and-a-nurse-consulting-an-AI-chatbot-on-a-tablet-displaying-patient-data-and-medical-history-1-1-1-2.png', alt: 'AI Consultation Platform', title: 'AI-powered online consultation and medicine delivery', desc: 'AI-powered online consultation and medicine delivery is a modern healthcare solution that makes getting medical help easier and more convenient.', liveUrl: 'https://docxpert.netlify.app/', githubUrl: '#', tech: ['HTML', 'CSS', 'Django', 'MySQL'] },
+  { id: 'proj-2', image: '/delivery-horizon-drone-delivery.png', alt: 'AI-Powered Drone Delivery', title: 'Skybite - Future of Delivery', desc: "SkyBite is soaring into India's food delivery scene with cutting-edge drone technology. We're transforming the way meals reach your doorstep, offering unparalleled speed and efficiency.", liveUrl: 'https://skybite-demo.netlify.app/', githubUrl: '#', tech: ['React', 'Tailwind CSS', 'MongoDB', 'Node JS'] },
+  { id: 'proj-3', image: '/istockphoto-1022925352-612x612.jpg', alt: 'Trash 2 Treasure', title: 'Trash 2 Treasure', desc: 'Trash2Treasure (T2T) is a digital waste-to-credit platform designed to promote responsible waste disposal through gamification and incentives.', liveUrl: 'https://t2tapplication.vercel.app', githubUrl: '#', tech: ['MongoDB', 'Express', 'React', 'NodeJS'] },
+];
+
+export const EMAIL = 'vishnu.konda40@gmail.com';
+export const PHONE = { display: '+91 89775 70809', href: 'tel:+918977570809' };
+
+export const TECH = ['React', 'Node.js', 'Express', 'MongoDB', 'Django', 'MySQL', 'PostgreSQL', 'Tailwind CSS', 'React Native', 'Flutter', 'Figma'];

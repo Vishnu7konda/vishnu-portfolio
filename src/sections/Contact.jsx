@@ -1,31 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Check, Copy } from '../components/Icons';
-import { SOCIALS } from '../data/socials';
-import { useReveal, stagger } from '../lib/motion';
-
-const EMAIL = 'vishnu.konda40@gmail.com';
-const EMPTY = { name: '', email: '', subject: '', message: '' };
-
-const ROWS = [
-  { label: 'Email',    value: EMAIL,                  href: `mailto:${EMAIL}`, copy: true },
-  { label: 'Phone',    value: '+91 89775 70809',      href: 'tel:+918977570809' },
-  { label: 'Location', value: 'Hyderabad, Telangana' },
-  ...SOCIALS.map((s) => ({ label: s.label, value: s.handle, href: s.href, external: true })),
-];
-
-const STATUS_TEXT = {
-  sending: 'Sending…',
-  success: 'Thanks — your message has been sent.',
-};
+import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import { Check, Copy } from '../components/Icons';
+import { FadeIn, Magnetic, RollText, SplitText } from '../components/Anim';
+import { useContact } from '../components/ContactDrawer';
+import { EASE, useLocalTime } from '../lib/hooks';
+import { EMAIL, PHONE } from '../data/defaults';
 
 export default function Contact() {
-  const sectionRef = useRef(null);
-  const [form, setForm] = useState(EMPTY);
-  const [status, setStatus] = useState('idle');
-  const [errorMsg, setErrorMsg] = useState('');
+  const openContact = useContact();
+  const time = useLocalTime();
   const [copied, setCopied] = useState(false);
-
-  useReveal(sectionRef);
 
   useEffect(() => {
     if (!copied) return;
@@ -42,125 +26,52 @@ export default function Contact() {
     }
   };
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { name, email, message } = form;
-
-    if (!name.trim() || !email.trim() || !message.trim()) {
-      setStatus('error');
-      setErrorMsg('Please fill in your name, email and message.');
-      return;
-    }
-    setErrorMsg('');
-    setStatus('sending');
-
-    try {
-      const resp = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          subject: form.subject.trim(),
-          message: message.trim(),
-        }),
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ error: 'Server error' }));
-        throw new Error(err.error || 'Failed to send');
-      }
-
-      setStatus('success');
-      setForm(EMPTY);
-    } catch (err) {
-      setStatus('error');
-      setErrorMsg(err.message || 'Something went wrong. Please try again.');
-    }
-  };
-
-  const statusText = status === 'error' ? errorMsg : STATUS_TEXT[status];
-
   return (
-    <section id="contact" className="section" ref={sectionRef}>
-      <div className="container section-grid">
-        <p className="section-label mono reveal"><b>04</b>Contact</p>
-        <div className="section-body">
-          <h2 className="section-title reveal">
-            Have a project in mind? <span className="muted">Let's build it together.</span>
-          </h2>
+    <section id="contact" className="contact">
+      <div className="container">
+        <FadeIn className="eyebrow-row">
+          <span className="mono">( Contact )</span>
+          <span className="mono">Hyderabad, IN — {time} IST</span>
+        </FadeIn>
 
-          <div className="contact-grid">
-            <ul className="contact-list reveal">
-              {ROWS.map((row) => (
-                <li key={row.label} className="contact-row">
-                  <span className="mono">{row.label}</span>
-                  {row.href ? (
-                    <a
-                      className="contact-value"
-                      href={row.href}
-                      {...(row.external && { target: '_blank', rel: 'noopener noreferrer' })}
-                    >
-                      {row.value}
-                      {row.external && <ArrowUpRight />}
-                    </a>
-                  ) : (
-                    <span className="contact-value">{row.value}</span>
-                  )}
-                  {row.copy ? (
-                    <button
-                      type="button"
-                      className="icon-btn icon-btn-sm"
-                      onClick={copyEmail}
-                      aria-label={copied ? 'Email copied' : 'Copy email address'}
-                      title={copied ? 'Copied' : 'Copy'}
-                    >
-                      {copied ? <Check /> : <Copy />}
-                    </button>
-                  ) : <span />}
-                </li>
-              ))}
-            </ul>
+        <h2 className="cta-title">
+          <SplitText text="Let's work|*together*" stagger={0.1} />
+        </h2>
 
-            <form className="form-card reveal" style={stagger(1)} onSubmit={handleSubmit} noValidate>
-              <div className="form-row">
-                <div className="field">
-                  <label htmlFor="name">Name</label>
-                  <input id="name" name="name" type="text" autoComplete="name" placeholder="Jane Doe"
-                    value={form.name} onChange={handleChange} required />
-                </div>
-                <div className="field">
-                  <label htmlFor="email">Email</label>
-                  <input id="email" name="email" type="email" autoComplete="email" placeholder="you@email.com"
-                    value={form.email} onChange={handleChange} required />
-                </div>
-              </div>
-              <div className="field">
-                <label htmlFor="subject">Subject <span className="optional">(optional)</span></label>
-                <input id="subject" name="subject" type="text" placeholder="What's this about?"
-                  value={form.subject} onChange={handleChange} />
-              </div>
-              <div className="field">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" rows="5" placeholder="Tell me a little about your project…"
-                  value={form.message} onChange={handleChange} required />
-              </div>
-
-              <div className="form-footer">
-                <p className={`form-status ${status}`} role="status" aria-live="polite">
-                  {statusText}
-                </p>
-                <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
-                  {status === 'sending' ? 'Sending…' : 'Send message'}
+        <div className="cta-row">
+          <motion.span
+            className="cta-line"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true, amount: 1 }}
+            transition={{ duration: 1.4, ease: EASE }}
+          />
+          <div className="cta-circle-wrap">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, ease: EASE, delay: 0.3 }}
+            >
+              <Magnetic strength={0.45}>
+                <button className="cta-circle" onClick={openContact}>
+                  <span className="cta-circle-fill" />
+                  <RollText text="Get in touch" />
                 </button>
-              </div>
-            </form>
+              </Magnetic>
+            </motion.div>
           </div>
         </div>
+
+        <FadeIn className="cta-pills" delay={0.15}>
+          <button className="pill" onClick={copyEmail} title="Copy email address">
+            <RollText text={copied ? 'Copied to clipboard' : EMAIL} />
+            {copied ? <Check /> : <Copy />}
+          </button>
+          <a className="pill" href={PHONE.href}>
+            <RollText text={PHONE.display} />
+          </a>
+        </FadeIn>
       </div>
     </section>
   );
