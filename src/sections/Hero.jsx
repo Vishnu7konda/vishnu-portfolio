@@ -1,126 +1,101 @@
-import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useScroll, useTransform } from 'motion/react';
-import { ArrowDown } from '../components/Icons';
-import { Magnetic, RollText } from '../components/Anim';
-import { useContact } from '../components/ContactDrawer';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import Reveal, { SplitWords } from '../components/Reveal';
+import { ArrowRight } from '../components/Icons';
+import { SOCIALS } from '../data/socials';
 import { EASE, useLocalTime } from '../lib/hooks';
 
-const ROLES = ['Developer', 'Designer', 'Builder'];
-
-function Letters({ text, play, delay }) {
-  return (
-    <span className="name-word" aria-hidden="true">
-      {[...text].map((c, i) => (
-        <motion.span
-          key={i}
-          initial={{ y: '102%' }}
-          animate={play ? { y: '0%' } : undefined}
-          transition={{ duration: 1.2, ease: EASE, delay: delay + i * 0.05 }}
-        >
-          {c}
-        </motion.span>
-      ))}
-    </span>
-  );
-}
-
-function RoleRotator({ play }) {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    if (!play) return;
-    const id = setInterval(() => setI((n) => (n + 1) % ROLES.length), 2400);
-    return () => clearInterval(id);
-  }, [play]);
-
-  return (
-    <span className="role-window">
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={ROLES[i]}
-          initial={{ y: '100%' }}
-          animate={{ y: '0%' }}
-          exit={{ y: '-100%' }}
-          transition={{ duration: 0.7, ease: EASE }}
-        >
-          {ROLES[i]}
-        </motion.span>
-      </AnimatePresence>
-    </span>
-  );
-}
-
-export default function Hero({ ready, delay }) {
+export default function Hero() {
   const ref = useRef(null);
-  const openContact = useContact();
   const time = useLocalTime();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const nameY = useTransform(scrollYProgress, [0, 1], ['0%', '45%']);
-  const fade = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
-  const photoScale = useTransform(scrollYProgress, [0, 1], [1, 1.25]);
-
-  const rise = (d) => ({
-    initial: { opacity: 0, y: 20 },
-    animate: ready ? { opacity: 1, y: 0 } : undefined,
-    transition: { duration: 1, ease: EASE, delay: delay + d },
-  });
+  const photoY = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -40]);
 
   return (
     <section id="home" className="hero" ref={ref}>
-      <motion.div className="container hero-inner" style={{ opacity: fade }}>
-        <motion.div className="hero-meta mono" {...rise(0.7)}>
-          <span><span className="dot" aria-hidden="true" /> Creative developer &amp; startup builder</span>
-          <span>Hyderabad, IN — {time} IST</span>
-        </motion.div>
+      <div className="container hero-grid">
+        <motion.div className="hero-copy" style={{ y: copyY }}>
+          <Reveal onLoad delay={0.05} className="status" blur={false}>
+            <span className="dot" aria-hidden="true" />
+            Based in Hyderabad, India
+          </Reveal>
 
-        <motion.h1 className="hero-name" style={{ y: nameY }}>
-          <span className="sr-only">Vishnu Konda</span>
-          <span className="name-line">
-            <Letters text="Vishnu" play={ready} delay={delay} />
-            <motion.span className="hero-role" aria-hidden="true" {...rise(0.9)}>
-              <span className="serif">Creative</span>
-              <RoleRotator play={ready} />
-            </motion.span>
-          </span>
-          <span className="name-line">
-            <motion.span
-              className="hero-photo"
-              aria-hidden="true"
-              initial={{ clipPath: 'inset(100% 0% 0% 0%)' }}
-              animate={ready ? { clipPath: 'inset(0% 0% 0% 0%)' } : undefined}
-              transition={{ duration: 1.3, ease: EASE, delay: delay + 0.35 }}
-            >
-              <motion.img
-                src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg"
-                alt=""
-                style={{ scale: photoScale }}
-              />
-            </motion.span>
-            <Letters text="Konda" play={ready} delay={delay + 0.2} />
-          </span>
-        </motion.h1>
+          <SplitWords
+            as="h1"
+            className="hero-title"
+            onLoad
+            delay={0.15}
+            segments={[
+              { text: "Hi, I'm Vishnu Konda.", className: 'nowrap' },
+              { text: 'Creative developer & startup builder.', className: 'muted' },
+            ]}
+          />
 
-        <motion.div className="hero-bottom" {...rise(1)}>
-          <p className="hero-intro">
+          <Reveal onLoad as="p" delay={0.55} className="hero-lead">
             I design and build clean, functional web products that solve real problems —
-            with an eye for detail and a focus on what actually works.
-          </p>
-          <a href="#about" className="scroll-cue" aria-label="Scroll to About">
-            <span className="scroll-line" />
-            <span className="mono">Scroll</span>
-          </a>
-          <div className="hero-ctas">
-            <a href="#projects" className="link-arrow">
-              <RollText text="See my work" />
-              <ArrowDown />
+            from the interface down to the code behind it.
+          </Reveal>
+
+          <Reveal onLoad delay={0.65} className="hero-actions">
+            <a href="#projects" className="btn btn-primary">
+              View my work <ArrowRight />
             </a>
-            <Magnetic>
-              <button className="btn btn-primary btn-lg" onClick={openContact}>
-                <RollText text="Let's talk" />
-              </button>
-            </Magnetic>
+            <a href="#contact" className="btn btn-secondary">Contact me</a>
+          </Reveal>
+
+          <div className="hero-socials">
+            {SOCIALS.map((s, i) => (
+              <Reveal
+                as="a"
+                onLoad
+                blur={false}
+                y={12}
+                delay={0.8 + i * 0.06}
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social"
+                aria-label={s.label}
+              >
+                <i className={s.icon} aria-hidden="true"></i>
+              </Reveal>
+            ))}
           </div>
         </motion.div>
-      </motion.div>
+
+        <div className="hero-visual">
+          <motion.figure
+            className="hero-photo"
+            initial={{ clipPath: 'inset(120% -20% -20% -20%)' }}
+            animate={{ clipPath: 'inset(-20% -20% -20% -20%)' }}
+            transition={{ duration: 1.3, ease: EASE, delay: 0.25 }}
+          >
+            <motion.img
+              src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg"
+              alt="Portrait of Vishnu Konda"
+              style={{ y: photoY }}
+              initial={{ scale: 1.25 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 1.8, ease: EASE, delay: 0.25 }}
+            />
+          </motion.figure>
+
+          <motion.div
+            className="hero-badge"
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.8, ease: EASE, delay: 1.1 }}
+          >
+            <span className="dot" aria-hidden="true" />
+            <span>
+              <small>Local time</small>
+              {time} IST
+            </span>
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

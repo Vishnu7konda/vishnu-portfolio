@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { Check, Copy } from '../components/Icons';
-import { FadeIn, Magnetic, RollText, SplitText } from '../components/Anim';
-import { useContact } from '../components/ContactDrawer';
-import { EASE, useLocalTime } from '../lib/hooks';
+import Reveal, { SplitWords } from '../components/Reveal';
+import { Check, Copy, Mail, Phone, Pin } from '../components/Icons';
+import { SOCIALS } from '../data/socials';
 import { EMAIL, PHONE } from '../data/defaults';
 
+const EMPTY = { name: '', email: '', subject: '', message: '' };
+
 export default function Contact() {
-  const openContact = useContact();
-  const time = useLocalTime();
+  const [form, setForm] = useState(EMPTY);
+  const [status, setStatus] = useState('idle');
+  const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -26,52 +27,118 @@ export default function Contact() {
     }
   };
 
+  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { name, email, message: body } = form;
+    if (!name.trim() || !email.trim() || !body.trim()) {
+      setStatus('error');
+      setMessage('Please fill in your name, email and message.');
+      return;
+    }
+    setStatus('sending');
+    setMessage('');
+    try {
+      const resp = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          subject: form.subject.trim(),
+          message: body.trim(),
+        }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ error: 'Server error' }));
+        throw new Error(err.error || 'Failed to send');
+      }
+      setStatus('success');
+      setMessage("Thanks — your message has been sent. I'll get back to you soon.");
+      setForm(EMPTY);
+    } catch (err) {
+      setStatus('error');
+      setMessage(err.message || 'Something went wrong. Please try again.');
+    }
+  };
+
   return (
-    <section id="contact" className="contact">
+    <section id="contact" className="section">
       <div className="container">
-        <FadeIn className="eyebrow-row">
-          <span className="mono">( Contact )</span>
-          <span className="mono">Hyderabad, IN — {time} IST</span>
-        </FadeIn>
+        <Reveal className="contact-card" y={40} amount={0.15}>
+          <div className="contact-info">
+            <p className="eyebrow">Contact</p>
+            <SplitWords as="h2" className="section-title" segments="Let's build something together." delay={0.2} />
+            <p className="contact-lead">
+              Have a project in mind or just want to say hello? Send a message and I'll get back to you.
+            </p>
 
-        <h2 className="cta-title">
-          <SplitText text="Let's work|*together*" stagger={0.1} />
-        </h2>
-
-        <div className="cta-row">
-          <motion.span
-            className="cta-line"
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true, amount: 1 }}
-            transition={{ duration: 1.4, ease: EASE }}
-          />
-          <div className="cta-circle-wrap">
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, ease: EASE, delay: 0.3 }}
-            >
-              <Magnetic strength={0.45}>
-                <button className="cta-circle" onClick={openContact}>
-                  <span className="cta-circle-fill" />
-                  <RollText text="Get in touch" />
+            <ul className="contact-list">
+              <li>
+                <span className="contact-icon"><Mail /></span>
+                <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+                <button
+                  type="button"
+                  className="icon-btn icon-btn-sm"
+                  onClick={copyEmail}
+                  aria-label={copied ? 'Email copied' : 'Copy email address'}
+                  title={copied ? 'Copied' : 'Copy'}
+                >
+                  {copied ? <Check /> : <Copy />}
                 </button>
-              </Magnetic>
-            </motion.div>
-          </div>
-        </div>
+              </li>
+              <li>
+                <span className="contact-icon"><Phone /></span>
+                <a href={PHONE.href}>{PHONE.display}</a>
+              </li>
+              <li>
+                <span className="contact-icon"><Pin /></span>
+                <span>Hyderabad, Telangana</span>
+              </li>
+            </ul>
 
-        <FadeIn className="cta-pills" delay={0.15}>
-          <button className="pill" onClick={copyEmail} title="Copy email address">
-            <RollText text={copied ? 'Copied to clipboard' : EMAIL} />
-            {copied ? <Check /> : <Copy />}
-          </button>
-          <a className="pill" href={PHONE.href}>
-            <RollText text={PHONE.display} />
-          </a>
-        </FadeIn>
+            <div className="contact-socials">
+              {SOCIALS.map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="social" aria-label={s.label}>
+                  <i className={s.icon} aria-hidden="true"></i>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <form className="contact-form" onSubmit={handleSubmit} noValidate>
+            <div className="form-row">
+              <div className="field">
+                <label htmlFor="name">Name</label>
+                <input id="name" name="name" type="text" autoComplete="name" placeholder="Jane Doe"
+                  value={form.name} onChange={handleChange} required />
+              </div>
+              <div className="field">
+                <label htmlFor="email">Email</label>
+                <input id="email" name="email" type="email" autoComplete="email" placeholder="you@email.com"
+                  value={form.email} onChange={handleChange} required />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="subject">Subject <span className="optional">(optional)</span></label>
+              <input id="subject" name="subject" type="text" placeholder="What's this about?"
+                value={form.subject} onChange={handleChange} />
+            </div>
+            <div className="field">
+              <label htmlFor="message">Message</label>
+              <textarea id="message" name="message" rows="5" placeholder="Tell me a little about your project…"
+                value={form.message} onChange={handleChange} required />
+            </div>
+
+            <div className="form-footer">
+              <p className={`form-status ${status}`} role="status" aria-live="polite">{message}</p>
+              <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Sending…' : 'Send message'}
+              </button>
+            </div>
+          </form>
+        </Reveal>
       </div>
     </section>
   );
