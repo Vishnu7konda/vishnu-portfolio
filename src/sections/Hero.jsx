@@ -3,13 +3,12 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import Reveal, { SplitWords } from '../components/Reveal';
 import { ArrowRight } from '../components/Icons';
 import { SOCIALS } from '../data/socials';
-import { EASE, useLocalTime } from '../lib/hooks';
+import { EASE } from '../lib/hooks';
 
 export default function Hero() {
   const ref = useRef(null);
-  const time = useLocalTime();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const photoY = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const photoY = useTransform(scrollYProgress, [0, 1], [0, 48]);
   const copyY = useTransform(scrollYProgress, [0, 1], [0, -40]);
 
   return (
@@ -65,7 +64,7 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        <div className="hero-visual">
+        <motion.div className="hero-visual" style={{ y: photoY }}>
           <motion.figure
             className="hero-photo"
             initial={{ clipPath: 'inset(120% -20% -20% -20%)' }}
@@ -75,26 +74,12 @@ export default function Hero() {
             <motion.img
               src="/vishnu-konda.webp"
               alt="Portrait of Vishnu Konda"
-              style={{ y: photoY }}
-              initial={{ scale: 1.25 }}
+              initial={{ scale: 1.15 }}
               animate={{ scale: 1 }}
               transition={{ duration: 1.8, ease: EASE, delay: 0.25 }}
             />
           </motion.figure>
-
-          <motion.div
-            className="hero-badge"
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, ease: EASE, delay: 1.1 }}
-          >
-            <span className="dot" aria-hidden="true" />
-            <span>
-              <small>Local time</small>
-              {time} IST
-            </span>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
