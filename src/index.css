@@ -360,10 +360,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* ── Hero ───────────────────────────────────────────────────────── */
 .hero {
-    padding: calc(var(--header-h) + clamp(48px, 9vh, 112px)) 0 clamp(72px, 10vh, 120px);
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: calc(var(--header-h) + clamp(24px, 5vh, 64px)) 0 clamp(48px, 8vh, 96px);
 }
 
 .hero-grid {
+    width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: clamp(40px, 6vw, 88px);
@@ -386,6 +391,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 .nowrap { white-space: nowrap; }
+
+.hero-title .muted { display: block; }
 
 .hero-title {
     font-size: clamp(2.1rem, 4.4vw, 3.6rem);
@@ -420,7 +427,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .hero-visual {
     width: 100%;
-    max-width: 460px;
+    max-width: min(460px, 62vh);
     justify-self: end;
 }
 
@@ -878,11 +885,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .to-top { display: inline-flex; align-items: center; gap: 6px; }
 
 /* ── Responsive ─────────────────────────────────────────────────── */
-@media (max-width: 960px) {
-    .hero-grid { grid-template-columns: minmax(0, 1fr); }
-    .hero-visual { order: -1; max-width: 144px; justify-self: start; }
-    .hero-photo { border-radius: 20px; }
-    .hero-photo img { scale: 1.45; transform-origin: 50% 32%; }
+@media (max-width: 1100px) {
+    .nav { gap: 0; }
+    .nav a { padding: 8px 10px; }
+    .hero-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; }
+    .hero-socials { margin-top: 32px; padding-top: 24px; }
+    .about-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+    .contact-card { gap: 40px; }
+}
+
+@media (max-width: 1024px) {
+    .project.featured .project-media { min-height: 300px; }
+    .stat { padding: 18px 16px; }
+    .form-row { gap: 12px; }
+}
+
+@media (max-width: 820px) {
     .about-grid,
     .contact-card { grid-template-columns: minmax(0, 1fr); }
 
@@ -894,9 +912,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
         border-right: none;
         border-bottom: 1px solid var(--border);
     }
+
+    .hero { min-height: auto; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr); }
+    .hero-visual { order: -1; max-width: 144px; justify-self: start; }
+    .hero-photo { border-radius: 20px; }
+    .hero-photo img { scale: 1.45; transform-origin: 50% 32%; }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 768px) {
     .nav,
     .header-cta { display: none; }
     .menu-btn { display: inline-grid; }

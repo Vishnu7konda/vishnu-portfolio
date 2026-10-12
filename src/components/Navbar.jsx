@@ -37,7 +37,7 @@ export default function Navbar() {
     if (!open) return;
     lockScroll(true);
     const onKey = (e) => e.key === 'Escape' && setOpen(false);
-    const onResize = () => window.innerWidth > 860 && setOpen(false);
+    const onResize = () => window.innerWidth > 768 && setOpen(false);
     window.addEventListener('keydown', onKey);
     window.addEventListener('resize', onResize);
     return () => {
