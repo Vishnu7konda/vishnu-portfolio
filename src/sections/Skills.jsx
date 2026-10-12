@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useReveal, trackSpotlight, stagger } from '../lib/motion';
+import { fetchPortfolio } from '../lib/data';
+import { useReveal, pad } from '../lib/motion';
 
 const DEFAULT_SKILLS = [
   { id: 'skill-1', icon: 'fab fa-html5', title: 'Frontend Development', desc: 'Modern HTML5, CSS3, and JavaScript with frameworks like React, Vue.js, and Angular' },
@@ -13,8 +14,7 @@ export default function Skills() {
   const [skills, setSkills] = useState([]);
 
   useEffect(() => {
-    fetch('/api/data')
-      .then((r) => r.json())
+    fetchPortfolio()
       .then((data) => setSkills(data.skills?.length ? data.skills : DEFAULT_SKILLS))
       .catch(() => setSkills(DEFAULT_SKILLS));
   }, []);
@@ -22,29 +22,26 @@ export default function Skills() {
   useReveal(sectionRef, [skills]);
 
   return (
-    <section id="skills" className="skills-section" ref={sectionRef}>
-      <div className="container">
-        <div className="section-header center reveal">
-          <span className="eyebrow">Skills &amp; Expertise</span>
-          <h2 className="section-title">
-            What I <span className="gradient-text">bring to the table</span>
+    <section id="skills" className="section" ref={sectionRef}>
+      <div className="container section-grid">
+        <p className="section-label mono reveal"><b>03</b>Capabilities</p>
+        <div className="section-body">
+          <h2 className="section-title reveal">
+            What I work with. <span className="muted">The disciplines and tools I use to ship products.</span>
           </h2>
-          <p className="section-subtitle">Technologies and tools I use to bring ideas to life</p>
-        </div>
-        <div className="skills-grid">
-          {skills.map((skill, i) => (
-            <article
-              key={skill.id}
-              className="card spotlight skill-card reveal"
-              style={stagger(i)}
-              onMouseMove={trackSpotlight}
-            >
-              <span className="skill-index">{String(i + 1).padStart(2, '0')}</span>
-              <div className="skill-icon"><i className={skill.icon}></i></div>
-              <h3>{skill.title}</h3>
-              <p>{skill.desc}</p>
-            </article>
-          ))}
+
+          <div className="cap-grid reveal">
+            {skills.map((s, i) => (
+              <article key={s.id} className="cap">
+                <div className="cap-top">
+                  <span className="cap-icon" aria-hidden="true"><i className={s.icon}></i></span>
+                  <span className="mono">{pad(i + 1)}</span>
+                </div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useReveal, trackSpotlight, stagger } from '../lib/motion';
+import { ArrowUpRight } from '../components/Icons';
+import { fetchPortfolio } from '../lib/data';
+import { useReveal, pad } from '../lib/motion';
 
 const DEFAULT_PROJECTS = [
   { id: 'proj-1', image: '/DALL·E-2024-05-10-18.27.35-A-photograph-of-a-healthcare-setting-a-doctor-and-a-nurse-consulting-an-AI-chatbot-on-a-tablet-displaying-patient-data-and-medical-history-1-1-1-2.png', alt: 'AI Consultation Platform', title: 'AI-powered online consultation and medicine delivery', desc: 'AI-powered online consultation and medicine delivery is a modern healthcare solution that makes getting medical help easier and more convenient.', liveUrl: 'https://docxpert.netlify.app/', githubUrl: '#', tech: ['HTML', 'CSS', 'Django', 'MySQL'] },
@@ -14,8 +16,7 @@ export default function Projects() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    fetch('/api/data')
-      .then((r) => r.json())
+    fetchPortfolio()
       .then((data) => setProjects(data.projects?.length ? data.projects : DEFAULT_PROJECTS))
       .catch(() => setProjects(DEFAULT_PROJECTS));
   }, []);
@@ -23,48 +24,52 @@ export default function Projects() {
   useReveal(sectionRef, [projects]);
 
   return (
-    <section id="projects" className="projects-section" ref={sectionRef}>
-      <div className="container">
-        <div className="section-header reveal">
-          <span className="eyebrow">Featured work</span>
-          <h2 className="section-title">
-            Selected <span className="gradient-text">projects</span>
+    <section id="projects" className="section" ref={sectionRef}>
+      <div className="container section-grid">
+        <p className="section-label mono reveal"><b>01</b>Work</p>
+        <div className="section-body">
+          <h2 className="section-title reveal">
+            Selected work. <span className="muted">Recent projects I've designed and built.</span>
           </h2>
-          <p className="section-subtitle">A showcase of my recent work and creative solutions</p>
-        </div>
-        <div className="projects-grid">
-          {projects.map((project, i) => (
-            <article
-              key={project.id}
-              className="card spotlight project-card reveal"
-              style={stagger(i, 120)}
-              onMouseMove={trackSpotlight}
-            >
-              <div className="project-image">
-                <span className="project-num">{String(i + 1).padStart(2, '0')}</span>
-                <img src={project.image} alt={project.alt || project.title} loading="lazy" />
-              </div>
-              <div className="project-content">
-                <h3>{project.title}</h3>
-                <p>{project.desc}</p>
-                <div className="project-tech">
-                  {(project.tech || []).map((t) => <span key={t}>{t}</span>)}
-                </div>
-                <div className="project-links">
-                  {hasUrl(project.liveUrl) && (
-                    <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="project-link primary">
-                      Live demo <i className="fas fa-arrow-up-right-from-square"></i>
-                    </a>
-                  )}
-                  {hasUrl(project.githubUrl) && (
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="project-link">
-                      <i className="fab fa-github"></i> Code
-                    </a>
-                  )}
-                </div>
-              </div>
-            </article>
-          ))}
+
+          <div className="work-list">
+            {projects.map((p, i) => {
+              const live = hasUrl(p.liveUrl);
+              const Media = live ? 'a' : 'div';
+              return (
+                <article key={p.id} className="work-item reveal">
+                  <Media
+                    className="work-media"
+                    {...(live && { href: p.liveUrl, target: '_blank', rel: 'noopener noreferrer', tabIndex: -1, 'aria-hidden': true })}
+                  >
+                    <img src={p.image} alt={p.alt || p.title} loading="lazy" />
+                  </Media>
+                  <div className="work-body">
+                    <p className="work-index mono">{pad(i + 1)} / {pad(projects.length)}</p>
+                    <h3 className="work-title">{p.title}</h3>
+                    <p className="work-desc">{p.desc}</p>
+                    {p.tech?.length > 0 && (
+                      <ul className="tags">
+                        {p.tech.map((t) => <li key={t} className="tag">{t}</li>)}
+                      </ul>
+                    )}
+                    <div className="work-links">
+                      {live && (
+                        <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="text-link">
+                          Visit live site <ArrowUpRight />
+                        </a>
+                      )}
+                      {hasUrl(p.githubUrl) && (
+                        <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="text-link">
+                          Source code <ArrowUpRight />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

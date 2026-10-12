@@ -1,9 +1,11 @@
 import { useRef } from 'react';
-import { useReveal, stagger } from '../lib/motion';
+import { useReveal, stagger, pad } from '../lib/motion';
 
-const STATS = [
-  { value: '3',  label: 'Projects' },
-  { value: '1+', label: 'Year Exp' },
+const PRINCIPLES = [
+  { title: 'Visually considered', desc: 'Interfaces that feel intentional, clear and easy to use.' },
+  { title: 'Fast',                desc: 'Lean builds and quick load times on every device.' },
+  { title: 'Secure',              desc: 'Sensible defaults and careful handling of user data.' },
+  { title: 'Practical',           desc: 'Solutions shaped around how people actually work.' },
 ];
 
 export default function About() {
@@ -11,50 +13,47 @@ export default function About() {
   useReveal(sectionRef);
 
   return (
-    <section id="about" className="about-section" ref={sectionRef}>
-      <div className="container">
-        <div className="section-header reveal">
-          <span className="eyebrow">About me</span>
-          <h2 className="section-title">
-            Building products that <span className="gradient-text">solve real problems</span>
+    <section id="about" className="section" ref={sectionRef}>
+      <div className="container section-grid">
+        <p className="section-label mono reveal"><b>02</b>About</p>
+        <div className="section-body">
+          <h2 className="section-title reveal">
+            Creative developer and startup builder.{' '}
+            <span className="muted">Design-minded, engineering-driven.</span>
           </h2>
-        </div>
 
-        <div className="about-content">
-          <div className="about-image reveal">
-            <div className="image-frame">
-              <img src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg" alt="Vishnu Konda" loading="lazy" />
-              <div className="image-badge">
-                <i className="fas fa-location-dot"></i>
-                <span>
-                  <small>Based in</small>
-                  Hyderabad, India
-                </span>
-              </div>
-            </div>
-          </div>
+          <div className="about-grid">
+            <figure className="about-photo reveal">
+              <img src="/WhatsApp Image 2026-01-13 at 11.03.18 AM.jpeg" alt="Portrait of Vishnu Konda" loading="lazy" />
+              <figcaption className="mono">
+                <span>Vishnu Konda</span>
+                <span>Hyderabad, IN</span>
+              </figcaption>
+            </figure>
 
-          <div className="about-text reveal" style={stagger(1)}>
-            <h3>Creative Developer &amp; Startup Builder</h3>
-            <p>
-              With 1+ year of experience in web development and product design, I specialize
-              in building clean, functional, and user-focused digital experiences. I'm passionate
-              about writing scalable code, crafting smooth UI, and turning real-world problems
-              into powerful web platforms.
-            </p>
-            <p>
-              My approach blends technical skills with creative thinking — ensuring every project
-              is not only visually appealing, but also fast, secure, and practical. I enjoy
-              exploring emerging technologies and constantly improving my skills to stay ahead
-              in the tech world.
-            </p>
-            <div className="stats">
-              {STATS.map((s, i) => (
-                <div className="stat-item reveal" style={stagger(i + 2)} key={s.label}>
-                  <span className="stat-number gradient-text">{s.value}</span>
-                  <span className="stat-label">{s.label}</span>
-                </div>
-              ))}
+            <div className="about-text reveal" style={stagger(1)}>
+              <p className="lead">
+                With 1+ year of experience in web development and product design, I specialize
+                in building clean, functional, and user-focused digital experiences. I'm passionate
+                about writing scalable code, crafting smooth UI, and turning real-world problems
+                into powerful web platforms.
+              </p>
+              <p>
+                My approach blends technical skills with creative thinking — ensuring every project
+                is not only visually appealing, but also fast, secure, and practical. I enjoy
+                exploring emerging technologies and constantly improving my skills to stay ahead
+                in the tech world.
+              </p>
+
+              <ul className="principles">
+                {PRINCIPLES.map((p, i) => (
+                  <li key={p.title} className="principle">
+                    <span className="mono">{pad(i + 1)}</span>
+                    <h3>{p.title}</h3>
+                    <p>{p.desc}</p>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

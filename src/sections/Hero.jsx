@@ -1,79 +1,64 @@
 import { useEffect, useState } from 'react';
-import SocialLinks from '../components/SocialLinks';
-import { scrollToId } from '../lib/motion';
+import { ArrowRight } from '../components/Icons';
 
-const ROLES = ['Creative Developer', 'Full-Stack Developer', 'Startup Builder'];
+const timeFormat = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'Asia/Kolkata',
+});
 
-function useTypedRoles(words) {
-  const [text, setText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-
+function useLocalTime() {
+  const [time, setTime] = useState(() => timeFormat.format(new Date()));
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setText(words[0]);
-      return;
-    }
-    const word = words[index % words.length];
-    let delay = deleting ? 45 : 90;
-    if (!deleting && text === word) delay = 1800;
-    if (deleting && text === '') delay = 350;
-
-    const t = setTimeout(() => {
-      if (!deleting && text === word) setDeleting(true);
-      else if (deleting && text === '') {
-        setDeleting(false);
-        setIndex((i) => i + 1);
-      } else {
-        setText(word.slice(0, text.length + (deleting ? -1 : 1)));
-      }
-    }, delay);
-    return () => clearTimeout(t);
-  }, [text, deleting, index, words]);
-
-  return text;
+    const id = setInterval(() => setTime(timeFormat.format(new Date())), 15000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
 }
 
 export default function Hero() {
-  const role = useTypedRoles(ROLES);
+  const time = useLocalTime();
 
   return (
-    <section id="home" className="hero-section">
-      <div className="hero-content hero-reveal">
-        <div>
-          <span className="hero-badge">
-            <span className="pulse-dot"></span>
-            Open to new opportunities
-          </span>
-        </div>
-        <p className="hero-greeting">Hello, I'm</p>
-        <h1 className="hero-title">
-          Vishnu <span className="gradient-text">Konda</span>
-        </h1>
-        <p className="hero-role" aria-label={ROLES.join(', ')}>
-          <span aria-hidden="true">
-            <span className="typed">{role}</span>
-            <span className="caret"></span>
-          </span>
+    <section id="home" className="hero">
+      <div className="container hero-reveal">
+        <p className="hero-eyebrow mono">
+          <span className="dot" aria-hidden="true"></span>
+          Creative Developer &amp; Startup Builder
         </p>
-        <p className="hero-subtitle">
-          Crafting exceptional digital experiences through innovative design and cutting-edge technology.
-        </p>
-        <div className="hero-buttons">
-          <button className="btn btn-primary" onClick={() => scrollToId('projects')}>
-            View My Work <i className="fas fa-arrow-right"></i>
-          </button>
-          <button className="btn btn-ghost" onClick={() => scrollToId('contact')}>
-            <i className="fas fa-paper-plane"></i> Get In Touch
-          </button>
-        </div>
-        <SocialLinks className="social-links hero-socials" />
-      </div>
 
-      <button className="scroll-indicator" onClick={() => scrollToId('about')} aria-label="Scroll to About">
-        <span className="mouse"></span>
-        Scroll
-      </button>
+        <h1 className="hero-title">
+          Building clean, functional web products{' '}
+          <span className="muted">that solve real problems.</span>
+        </h1>
+
+        <p className="hero-lead">
+          I'm Vishnu Konda, a developer and product designer based in Hyderabad. I turn
+          real-world problems into fast, secure, and practical web platforms.
+        </p>
+
+        <div className="hero-actions">
+          <a href="#projects" className="btn btn-primary">
+            View selected work <ArrowRight />
+          </a>
+          <a href="#contact" className="btn btn-secondary">Get in touch</a>
+        </div>
+
+        <dl className="hero-meta">
+          <div className="meta-item">
+            <dt className="mono">Based in</dt>
+            <dd>Hyderabad, India · {time} IST</dd>
+          </div>
+          <div className="meta-item">
+            <dt className="mono">Focus</dt>
+            <dd>Full-stack web &amp; product design</dd>
+          </div>
+          <div className="meta-item">
+            <dt className="mono">Experience</dt>
+            <dd>1+ year building for the web</dd>
+          </div>
+        </dl>
+      </div>
     </section>
   );
 }

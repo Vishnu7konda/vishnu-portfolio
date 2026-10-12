@@ -1,34 +1,34 @@
-import { useEffect, useRef, useState } from 'react';
-import { scrollToId } from '../lib/motion';
+import { useEffect, useState } from 'react';
+import { Close, Menu, Moon, Sun } from './Icons';
 
 const NAV_ITEMS = [
-  { id: 'home',     label: 'Home',     icon: 'fa-house' },
-  { id: 'about',    label: 'About',    icon: 'fa-user' },
-  { id: 'skills',   label: 'Skills',   icon: 'fa-code' },
-  { id: 'projects', label: 'Projects', icon: 'fa-briefcase' },
-  { id: 'contact',  label: 'Contact',  icon: 'fa-envelope' },
+  { id: 'projects', label: 'Work' },
+  { id: 'about',    label: 'About' },
+  { id: 'skills',   label: 'Capabilities' },
+  { id: 'contact',  label: 'Contact' },
 ];
 
+const currentTheme = () =>
+  document.documentElement.dataset.theme ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
 export default function Navbar() {
-  const [active, setActive] = useState('home');
+  const [active, setActive] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const progressRef = useRef(null);
+  const [theme, setTheme] = useState(currentTheme);
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (progressRef.current) {
-        progressRef.current.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
-      }
-      setScrolled(y > 24);
+      const doc = document.documentElement;
+      setScrolled(y > 8);
 
-      let current = 'home';
+      let current = '';
       document.querySelectorAll('main section[id]').forEach((s) => {
-        if (y >= s.offsetTop - window.innerHeight * 0.35) current = s.id;
+        if (s.id !== 'home' && y >= s.offsetTop - window.innerHeight * 0.4) current = s.id;
       });
-      if (y + window.innerHeight >= document.documentElement.scrollHeight - 4) current = 'contact';
+      if (y + window.innerHeight >= doc.scrollHeight - 4) current = 'contact';
       setActive(current);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -47,52 +47,57 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
-  const go = (e, id) => {
-    e.preventDefault();
-    setOpen(false);
-    scrollToId(id);
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch { /* storage unavailable */ }
+    setTheme(next);
   };
 
+  const close = () => setOpen(false);
+
   return (
-    <>
-      <div className="scroll-progress" ref={progressRef} />
-      <header className={`navbar${scrolled ? ' scrolled' : ''}`}>
-        <a href="#home" className="nav-logo" onClick={(e) => go(e, 'home')}>
-          <span className="nav-logo-mark">VK</span>
-          <span>Vishnu<span className="gradient-text">.</span></span>
+    <header className={`header${scrolled ? ' scrolled' : ''}${open ? ' open' : ''}`}>
+      <div className="container header-inner">
+        <a href="#home" className="brand" onClick={close}>
+          <span className="brand-mark">VK</span>
+          Vishnu Konda
         </a>
 
-        <nav aria-label="Primary">
-          <ul className={`nav-links${open ? ' open' : ''}`}>
-            {NAV_ITEMS.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  className={active === item.id ? 'active' : ''}
-                  aria-current={active === item.id ? 'true' : undefined}
-                  onClick={(e) => go(e, item.id)}
-                >
-                  <i className={`fas ${item.icon}`}></i>
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+        <nav id="primary-nav" className={`nav${open ? ' open' : ''}`} aria-label="Primary">
+          {NAV_ITEMS.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={active === item.id ? 'active' : undefined}
+              aria-current={active === item.id ? 'true' : undefined}
+              onClick={close}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
 
-        <a href="#contact" className="btn btn-primary nav-cta" onClick={(e) => go(e, 'contact')}>
-          Let's talk
-        </a>
-
-        <button
-          className="nav-toggle"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-        >
-          <i className={`fas ${open ? 'fa-xmark' : 'fa-bars'}`}></i>
-        </button>
-      </header>
-    </>
+        <div className="header-actions">
+          <button
+            className="icon-btn"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          >
+            {theme === 'dark' ? <Sun /> : <Moon />}
+          </button>
+          <a href="#contact" className="btn btn-primary btn-sm header-cta">Get in touch</a>
+          <button
+            className="icon-btn menu-btn"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="primary-nav"
+          >
+            {open ? <Close /> : <Menu />}
+          </button>
+        </div>
+      </div>
+    </header>
   );
 }

@@ -1,22 +1,46 @@
-import { useRef, useState } from 'react';
-import SocialLinks from '../components/SocialLinks';
-import { useReveal, trackSpotlight, stagger } from '../lib/motion';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, Check, Copy } from '../components/Icons';
+import { SOCIALS } from '../data/socials';
+import { useReveal, stagger } from '../lib/motion';
 
+const EMAIL = 'vishnu.konda40@gmail.com';
 const EMPTY = { name: '', email: '', subject: '', message: '' };
 
-const CONTACTS = [
-  { icon: 'fas fa-envelope',     label: 'Email',    value: 'vishnu.konda40@gmail.com', href: 'mailto:vishnu.konda40@gmail.com' },
-  { icon: 'fas fa-phone',        label: 'Phone',    value: '+91 8977570809',           href: 'tel:+918977570809' },
-  { icon: 'fas fa-location-dot', label: 'Location', value: 'Hyderabad, Telangana' },
+const ROWS = [
+  { label: 'Email',    value: EMAIL,                  href: `mailto:${EMAIL}`, copy: true },
+  { label: 'Phone',    value: '+91 89775 70809',      href: 'tel:+918977570809' },
+  { label: 'Location', value: 'Hyderabad, Telangana' },
+  ...SOCIALS.map((s) => ({ label: s.label, value: s.handle, href: s.href, external: true })),
 ];
+
+const STATUS_TEXT = {
+  sending: 'Sending…',
+  success: 'Thanks — your message has been sent.',
+};
 
 export default function Contact() {
   const sectionRef = useRef(null);
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useReveal(sectionRef);
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 1800);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+    } catch {
+      window.location.href = `mailto:${EMAIL}`;
+    }
+  };
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -27,7 +51,8 @@ export default function Contact() {
     const { name, email, message } = form;
 
     if (!name.trim() || !email.trim() || !message.trim()) {
-      setErrorMsg('Please fill in name, email and message.');
+      setStatus('error');
+      setErrorMsg('Please fill in your name, email and message.');
       return;
     }
     setErrorMsg('');
@@ -51,102 +76,90 @@ export default function Contact() {
       }
 
       setStatus('success');
-      setTimeout(() => {
-        setStatus('idle');
-        setForm(EMPTY);
-      }, 2000);
+      setForm(EMPTY);
     } catch (err) {
       setStatus('error');
       setErrorMsg(err.message || 'Something went wrong. Please try again.');
-      setTimeout(() => setStatus('idle'), 3000);
     }
   };
 
-  const btnLabel = {
-    sending: <><i className="fas fa-spinner fa-spin"></i> Sending...</>,
-    success: <><i className="fas fa-check"></i> Message Sent!</>,
-    error:   <><i className="fas fa-xmark"></i> Try Again</>,
-    idle:    <>Send Message <i className="fas fa-paper-plane"></i></>,
-  }[status];
-
-  const field = (name, label, props = {}) => {
-    const Tag = props.rows ? 'textarea' : 'input';
-    return (
-      <div className="form-group">
-        <Tag
-          id={name}
-          name={name}
-          value={form[name]}
-          onChange={handleChange}
-          placeholder=" "
-          {...props}
-        />
-        <label htmlFor={name}>{label}</label>
-      </div>
-    );
-  };
+  const statusText = status === 'error' ? errorMsg : STATUS_TEXT[status];
 
   return (
-    <section id="contact" className="contact-section" ref={sectionRef}>
-      <div className="container">
-        <div className="section-header center reveal">
-          <span className="eyebrow">Contact</span>
-          <h2 className="section-title">
-            Let's <span className="gradient-text">work together</span>
+    <section id="contact" className="section" ref={sectionRef}>
+      <div className="container section-grid">
+        <p className="section-label mono reveal"><b>04</b>Contact</p>
+        <div className="section-body">
+          <h2 className="section-title reveal">
+            Have a project in mind? <span className="muted">Let's build it together.</span>
           </h2>
-          <p className="section-subtitle">Ready to bring your ideas to life? Let's discuss your next project.</p>
-        </div>
 
-        <div className="contact-content">
-          <div className="contact-info">
-            {CONTACTS.map((c, i) => {
-              const Tag = c.href ? 'a' : 'div';
-              return (
-                <Tag
-                  key={c.label}
-                  href={c.href}
-                  className={`card spotlight contact-item reveal${c.href ? '' : ' is-static'}`}
-                  style={stagger(i)}
-                  onMouseMove={trackSpotlight}
-                >
-                  <div className="contact-icon"><i className={c.icon}></i></div>
-                  <div className="contact-details">
-                    <h4>{c.label}</h4>
-                    <p>{c.value}</p>
-                  </div>
-                  {c.href && <i className="fas fa-arrow-right contact-arrow"></i>}
-                </Tag>
-              );
-            })}
+          <div className="contact-grid">
+            <ul className="contact-list reveal">
+              {ROWS.map((row) => (
+                <li key={row.label} className="contact-row">
+                  <span className="mono">{row.label}</span>
+                  {row.href ? (
+                    <a
+                      className="contact-value"
+                      href={row.href}
+                      {...(row.external && { target: '_blank', rel: 'noopener noreferrer' })}
+                    >
+                      {row.value}
+                      {row.external && <ArrowUpRight />}
+                    </a>
+                  ) : (
+                    <span className="contact-value">{row.value}</span>
+                  )}
+                  {row.copy ? (
+                    <button
+                      type="button"
+                      className="icon-btn icon-btn-sm"
+                      onClick={copyEmail}
+                      aria-label={copied ? 'Email copied' : 'Copy email address'}
+                      title={copied ? 'Copied' : 'Copy'}
+                    >
+                      {copied ? <Check /> : <Copy />}
+                    </button>
+                  ) : <span />}
+                </li>
+              ))}
+            </ul>
 
-            <div className="connect-block reveal" style={stagger(3)}>
-              <h3>Connect with me</h3>
-              <SocialLinks />
-            </div>
+            <form className="form-card reveal" style={stagger(1)} onSubmit={handleSubmit} noValidate>
+              <div className="form-row">
+                <div className="field">
+                  <label htmlFor="name">Name</label>
+                  <input id="name" name="name" type="text" autoComplete="name" placeholder="Jane Doe"
+                    value={form.name} onChange={handleChange} required />
+                </div>
+                <div className="field">
+                  <label htmlFor="email">Email</label>
+                  <input id="email" name="email" type="email" autoComplete="email" placeholder="you@email.com"
+                    value={form.email} onChange={handleChange} required />
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="subject">Subject <span className="optional">(optional)</span></label>
+                <input id="subject" name="subject" type="text" placeholder="What's this about?"
+                  value={form.subject} onChange={handleChange} />
+              </div>
+              <div className="field">
+                <label htmlFor="message">Message</label>
+                <textarea id="message" name="message" rows="5" placeholder="Tell me a little about your project…"
+                  value={form.message} onChange={handleChange} required />
+              </div>
+
+              <div className="form-footer">
+                <p className={`form-status ${status}`} role="status" aria-live="polite">
+                  {statusText}
+                </p>
+                <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+                  {status === 'sending' ? 'Sending…' : 'Send message'}
+                </button>
+              </div>
+            </form>
           </div>
-
-          <form className="card contact-form reveal" style={stagger(1)} onSubmit={handleSubmit} noValidate>
-            <div className="form-row">
-              {field('name', 'Your Name', { type: 'text', autoComplete: 'name', required: true })}
-              {field('email', 'Your Email', { type: 'email', autoComplete: 'email', required: true })}
-            </div>
-            {field('subject', 'Subject', { type: 'text' })}
-            {field('message', 'Your Message', { rows: 5, required: true })}
-
-            {errorMsg && (
-              <p className="form-error" role="alert">
-                <i className="fas fa-circle-exclamation"></i> {errorMsg}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className={`btn btn-primary btn-block${status === 'success' ? ' is-success' : ''}${status === 'error' ? ' is-error' : ''}`}
-              disabled={status === 'sending'}
-            >
-              {btnLabel}
-            </button>
-          </form>
         </div>
       </div>
     </section>
