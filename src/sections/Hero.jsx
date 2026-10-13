@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import Reveal, { SplitWords } from '../components/Reveal';
 import { ArrowRight } from '../components/Icons';
 import { SOCIALS } from '../data/socials';
@@ -7,14 +7,19 @@ import { EASE } from '../lib/hooks';
 
 export default function Hero() {
   const ref = useRef(null);
+  const still = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const photoY = useTransform(scrollYProgress, [0, 1], [0, 48]);
-  const copyY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const photoY = useTransform(scrollYProgress, [0, 1], [0, 90]);
+  const photoScale = useTransform(scrollYProgress, [0, 1], [1, 0.82]);
+  const photoRotate = useTransform(scrollYProgress, [0, 1], [0, -4]);
+  const photoOpacity = useTransform(scrollYProgress, [0.4, 1], [1, 0.2]);
 
   return (
     <section id="home" className="hero" ref={ref}>
       <div className="container hero-grid">
-        <motion.div className="hero-copy" style={{ y: copyY }}>
+        <motion.div className="hero-copy" style={still ? undefined : { y: copyY, opacity: copyOpacity }}>
           <Reveal onLoad delay={0.05} className="status" blur={false}>
             <span className="dot" aria-hidden="true" />
             Based in Hyderabad, India
@@ -64,7 +69,10 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        <motion.div className="hero-visual" style={{ y: photoY }}>
+        <motion.div
+          className="hero-visual"
+          style={still ? undefined : { y: photoY, scale: photoScale, rotate: photoRotate, opacity: photoOpacity }}
+        >
           <motion.figure
             className="hero-photo"
             initial={{ clipPath: 'inset(120% -20% -20% -20%)' }}

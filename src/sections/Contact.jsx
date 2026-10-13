@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useReducedMotion, useScroll, useTransform } from 'motion/react';
 import Reveal, { SplitWords } from '../components/Reveal';
 import { Check, Copy, Mail, Phone, Pin } from '../components/Icons';
 import { SOCIALS } from '../data/socials';
@@ -11,6 +12,11 @@ export default function Contact() {
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
+  const cardRef = useRef(null);
+  const still = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: cardRef, offset: ['start end', 'start 0.4'] });
+  const cardScale = useTransform(scrollYProgress, [0, 1], [0.86, 1]);
+  const cardRadius = useTransform(scrollYProgress, [0, 1], [56, 24]);
 
   useEffect(() => {
     if (!copied) return;
@@ -66,7 +72,13 @@ export default function Contact() {
   return (
     <section id="contact" className="section">
       <div className="container">
-        <Reveal className="contact-card" y={40} amount={0.15}>
+        <Reveal
+          ref={cardRef}
+          className="contact-card"
+          y={40}
+          amount={0.15}
+          style={still ? undefined : { scale: cardScale, borderRadius: cardRadius }}
+        >
           <div className="contact-info">
             <p className="eyebrow">Contact</p>
             <SplitWords as="h2" className="section-title" segments="Let's build something together." delay={0.2} />

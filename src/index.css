@@ -480,6 +480,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     letter-spacing: -0.035em;
 }
 
+.section-title-lg {
+    max-width: 900px;
+    font-size: clamp(2.2rem, 4.6vw, 3.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+}
+
 .section-intro {
     max-width: 360px;
     color: var(--text-2);
@@ -548,14 +555,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     box-shadow: var(--shadow-sm);
 }
 
-.stat dd {
+.stat { height: 100%; }
+
+.stat-value {
     font-size: clamp(1.75rem, 3vw, 2.25rem);
     font-weight: 600;
     line-height: 1;
     letter-spacing: -0.04em;
 }
 
-.stat dt {
+.stat-label {
     font-size: 13px;
     color: var(--text-3);
 }
@@ -710,7 +719,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .service:hover { border-color: var(--border-2); box-shadow: var(--shadow-md); }
 
-.service:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.service-slot { display: flex; }
+.service-slot > .service { flex: 1; }
+.service-slot:last-child:nth-child(odd) { grid-column: 1 / -1; }
 
 .service-icon {
     width: 44px;
@@ -931,7 +942,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     .hero-photo { border-radius: 18px; }
     .project-grid,
     .service-grid { grid-template-columns: minmax(0, 1fr); }
-    .service:last-child:nth-child(odd) { grid-column: auto; }
+    .service-slot:last-child:nth-child(odd) { grid-column: auto; }
     .stats { gap: 8px; }
     .stat { padding: 16px 14px; }
     .form-row { grid-template-columns: minmax(0, 1fr); gap: 0; }

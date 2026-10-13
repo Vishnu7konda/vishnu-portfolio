@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView, useScroll, useTransform } from 'motion/react';
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import Reveal from '../components/Reveal';
 import SectionHead from '../components/SectionHead';
 import { ArrowUpRight } from '../components/Icons';
@@ -9,16 +9,28 @@ import { EASE } from '../lib/hooks';
 const hasUrl = (url) => url && url !== '#';
 
 function ProjectCard({ project: p, featured, delay }) {
+  const cardRef = useRef(null);
   const mediaRef = useRef(null);
+  const still = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: mediaRef, offset: ['start end', 'end start'] });
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1.15, 1]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
+  const { scrollYProgress: enter } = useScroll({ target: cardRef, offset: ['start end', 'start 0.55'] });
+  const rotateX = useTransform(enter, [0, 1], [18, 0]);
+  const scale = useTransform(enter, [0, 1], [0.86, 1]);
   const inView = useInView(mediaRef, { once: true, amount: 0.3 });
   const live = hasUrl(p.liveUrl);
   const Media = live ? 'a' : 'div';
   const linkProps = live ? { href: p.liveUrl, target: '_blank', rel: 'noopener noreferrer' } : {};
 
   return (
-    <Reveal as="article" className={`project${featured ? ' featured' : ''}`} delay={delay} lift>
+    <Reveal
+      as="article"
+      ref={cardRef}
+      className={`project${featured ? ' featured' : ''}`}
+      delay={delay}
+      lift
+      style={still ? undefined : { rotateX, scale, transformPerspective: 1400, transformOrigin: '50% 100%' }}
+    >
       <Media
         ref={mediaRef}
         className="project-media"
@@ -31,7 +43,7 @@ function ProjectCard({ project: p, featured, delay }) {
           animate={inView ? { clipPath: 'inset(0% 0% 0% 0%)' } : undefined}
           transition={{ duration: 1.2, ease: EASE, delay: delay + 0.1 }}
         >
-          <motion.img src={p.image} alt={p.alt || p.title} loading="lazy" style={{ scale: imageScale }} />
+          <motion.img src={p.image} alt={p.alt || p.title} loading="lazy" style={still ? undefined : { scale: imageScale }} />
         </motion.div>
       </Media>
       <div className="project-body">

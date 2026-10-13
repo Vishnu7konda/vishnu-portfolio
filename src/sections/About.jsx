@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import Reveal, { Counter } from '../components/Reveal';
 import SectionHead from '../components/SectionHead';
 import { usePortfolio } from '../lib/data';
@@ -6,9 +8,24 @@ import { TECH } from '../data/defaults';
 const techCount = (projects) =>
   new Set(projects.flatMap((p) => p.tech || []).map((t) => t.toLowerCase().replace(/[\s.]/g, ''))).size;
 
+function FloatingStat({ stat, index, progress, still }) {
+  const y = useTransform(progress, [0, 1], [50 + index * 45, 0]);
+  return (
+    <motion.div style={still ? undefined : { y }}>
+      <Reveal className="stat" delay={index * 0.1} lift>
+        <p className="stat-value"><Counter value={stat.value} suffix={stat.suffix} /></p>
+        <p className="stat-label">{stat.label}</p>
+      </Reveal>
+    </motion.div>
+  );
+}
+
 export default function About() {
   const data = usePortfolio();
   const projects = data?.projects ?? [];
+  const statsRef = useRef(null);
+  const still = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: statsRef, offset: ['start end', 'start 0.45'] });
 
   const stats = [
     { value: projects.length, label: 'Projects shipped' },
@@ -22,6 +39,7 @@ export default function About() {
         <SectionHead
           eyebrow="About"
           title="Turning real-world problems into clean, practical products."
+          scrub
         />
 
         <div className="about-grid">
@@ -40,14 +58,11 @@ export default function About() {
           </div>
 
           <div className="about-side">
-            <dl className="stats">
+            <div className="stats" ref={statsRef}>
               {data && stats.map((s, i) => (
-                <Reveal key={s.label} className="stat" delay={i * 0.1} lift>
-                  <dd><Counter value={s.value} suffix={s.suffix} /></dd>
-                  <dt>{s.label}</dt>
-                </Reveal>
+                <FloatingStat key={s.label} stat={s} index={i} progress={scrollYProgress} still={still} />
               ))}
-            </dl>
+            </div>
 
             <div>
               <Reveal as="p" className="label" blur={false} y={8}>Tech stack</Reveal>
