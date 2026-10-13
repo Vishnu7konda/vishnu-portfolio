@@ -12,7 +12,7 @@ export default function About() {
 
   const stats = [
     { value: projects.length, label: 'Projects shipped' },
-    { value: 1, suffix: '+', label: 'Year of experience' },
+    { value: 2, suffix: '+', label: 'Years of experience' },
     { value: techCount(projects), label: 'Technologies used' },
   ];
 
@@ -27,7 +27,7 @@ export default function About() {
         <div className="about-grid">
           <div className="about-copy">
             <Reveal as="p">
-              With 1+ year of experience in web development and product design, I specialize in
+              With 2+ years of experience in web development and product design, I specialize in
               building clean, functional, and user-focused digital experiences. I'm passionate about
               writing scalable code, crafting smooth UI, and turning real-world problems into
               powerful web platforms.
